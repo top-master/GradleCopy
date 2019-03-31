@@ -2,13 +2,15 @@
 #include "ui_mainwindow.h"
 
 #include "copythread.h"
+#include "listview.h"
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QDesktopServices>
-
+#include <QtGui/qmenu.h>
 
 #include <QApplication>
 
+QtMsgHandler oldMsgHandler = 0;
 void LogMessageOutput(QtMsgType type, const char *msg)
 {
     QString result;
@@ -31,9 +33,9 @@ void LogMessageOutput(QtMsgType type, const char *msg)
     }
 
     MainWindow::log(result);
-
-    if(type == QtFatalMsg)
-        abort();
+    oldMsgHandler(type, msg);
+    //if(type == QtFatalMsg)
+    //    abort();
 }
 
 QBasicMutex MainWindow::mutex;
@@ -49,12 +51,16 @@ MainWindow::MainWindow(QWidget *parent) :
     gradlePath += QLatin1Literal("/.gradle/caches/modules-2/files-2.1");
     ui->addressEdit->setText( gradlePath );
 
+    QMenu *menu = new QMenu();
+    menu->addAction("Generate Missing Jar List", this, SLOT(generateDownloadList()));
+    ui->copyButton->setMenu(menu);
+
     QMutexLocker locker(&mutex);
     if(instance == Q_NULLPTR)
         instance = this;
 
     //any log output will wait until this returns
-    qInstallMsgHandler(&LogMessageOutput);
+    oldMsgHandler = qInstallMsgHandler(&LogMessageOutput);
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +80,13 @@ void MainWindow::log(const QString &msg)
     }
 }
 
+void MainWindow::showList(const QString &providerLink, const QStringList &remoteLinks, const QStringList &localFiles)
+{
+    ListView *lv = new ListView();
+    lv->setList(providerLink, remoteLinks, localFiles);
+    lv->showNormal();
+}
+
 void MainWindow::on_browseButton_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(this);
@@ -86,19 +99,42 @@ void MainWindow::on_selectTargetButton_clicked()
     ui->targetEdit->setText(path);
 }
 
-void MainWindow::on_copyButton_clicked()
+bool MainWindow::ensureSource(QDir *source)
 {
-    QDir source = QDir(ui->addressEdit->text());
-    QString target = ui->targetEdit->text();
-    if(source.exists()) {
-        CopyThread *thread = new CopyThread();
+    *source = QDir(ui->addressEdit->text());
+    if(source->exists())
+        return true;
+    QApplication::beep();
+    ui->addressEdit->setFocus();
+    ui->addressEdit->selectAll();
+    return false;
+}
+
+CopyThread *MainWindow::ensureThread(CopyThread::OperationType ot)
+{
+    CopyThread *thread = 0;
+    QDir source;
+    if(ot == CopyThread::GetLinkList || ensureSource(&source)) {
+        QString target = ui->targetEdit->text();
+        thread = new CopyThread();
         connect(thread, &QThread::finished, thread, &QObject::deleteLater);
         connect(thread, &CopyThread::statusChanged, this->ui->statusView, &QLabel::setText, Qt::QueuedConnection);
         connect(thread, &CopyThread::domainChanged, this->ui->statusView, &QLabel::setText, Qt::QueuedConnection);
-        thread->start(source, target, ui->testRun->isChecked());
-    } else {
-        QApplication::beep();
-        ui->addressEdit->setFocus();
-        ui->addressEdit->selectAll();
+        thread->prepare(source, target, ui->testRun->isChecked());
+    }
+    return thread;
+}
+
+void MainWindow::startOperation(CopyThread::OperationType ot)
+{
+    CopyThread *t = ensureThread(ot);
+    if(t) {
+        t->setOperation(ot);
+        if(ot == CopyThread::GetLinkList)
+            connect(t, &CopyThread::listReady, this, &MainWindow::showList);
+
+        t->start();
     }
 }
+
+

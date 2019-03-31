@@ -4,6 +4,10 @@
 #include <QtGui/QMainWindow>
 #include <QtCore/QMutex>
 
+#include "copythread.h"
+
+class CopyThread;
+
 namespace Ui {
 class MainWindow;
 }
@@ -17,12 +21,20 @@ public:
     ~MainWindow();
 
     static void log(const QString &);
+public slots:
+    inline void generateDownloadList() { startOperation(CopyThread::GetLinkList); }
+    void showList(const QString &providerLink, const QStringList &remoteLinks, const QStringList &localFiles);
 private slots:
     void on_browseButton_clicked();
 
-    void on_copyButton_clicked();
+    inline void on_copyButton_clicked() { startOperation(CopyThread::CopyLibraries); }
 
     void on_selectTargetButton_clicked();
+
+private:
+    bool ensureSource(QDir *);
+    CopyThread *ensureThread(CopyThread::OperationType ot);
+    void startOperation(CopyThread::OperationType ot);
 
 private:
     Ui::MainWindow *ui;

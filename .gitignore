@@ -1,59 +1,154 @@
+# Ignore personal files
+#
+todo/
+bin/*.rar
+src/network4/
+
+git_*.cmd
+
+
+# generated
+#
+*.dll_manifest.rc
+*.dll_manifest.res
+*.dll_manifest.bak
+*.exe_manifest.rc
+*.exe_manifest.res
+*.exe_manifest.bak
+*.dll.embed.manifest
+*.exe.embed.manifest
+*.exe.manifest
+
+
+####################################################
+# Filters C++ Compile-Result
+#
+
+# Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Static libraries
+*.lai
+*.la
+*.a
+*.lib
+!*.plist.lib
+
+# Debug Database
+*.pdb
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Fast Link database
+*.ilk
+
+# other
+*.exp
+
+####################################################
+# At Last Standard-Filters
+#
+
 # Mac OS X clutter
+#
 *.DS_Store
 
 # Windows clutter
 Thumbs.db
 
-# Ignore gradle files
-.gradle/
-.build/
+# Xcode
+#
 build/
-.nb-gradle/
-
-
-local.properties
-gradle.properties
-gradle/wrapper/gradle-wrapper.properties
-
-# Visual Studio Code
-.vscode/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
 
 # Intellij IDEs
 .idea/
 # Intellij IDEA (see https://intellij-support.jetbrains.com/entries/23393067)
 .idea/workspace.xml
 .idea/tasks.xml
-/*.iml
-!/*/*.iml
+# Android/IntelliJ IDEs
+#
+build/
+.build/
+.gradle/
+.nb-gradle/
+*.iml
+local.properties
+#gradle.properties
 
-#ignore XD Creator IDE
+# Visual Studio Code
+#
+.vscode/
+
+# ignore XD Creator IDE (backup or generated files)
+#
 *.user
-git_*.cmd
-
-#ignore backups of qt generated files
+*.user.*
 *.autosave
 *.xd_backup
 "*.properties~"
 
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-*.o
-*.a
-*.so
 
-#do not ignore libs
-!lib/*/*.so
+# node.js
+#
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+
+# Bundle artifact
+*.jsbundle
+
+# ---------------------------- below are not standard ----------------------------
+
+# Folders
+_obj
+_test
 
 # Architecture specific extensions/prefixes
-*.[568vq]
-[568vq].out
-
 *.cgo1.go
 *.cgo2.c
 _cgo_defun.c
 _cgo_gotypes.go
 _cgo_export.*
-
 _testmain.go
 
+
+*.test
 *.prof
 *_buildinfo.txt
+
