@@ -41,25 +41,31 @@ void LogMessageOutput(QtMsgType type, const char *msg)
 QBasicMutex MainWindow::mutex;
 MainWindow *MainWindow::instance = 0;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : super(parent)
+    , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    QString gradlePath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
+    QString &gradlePath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
     gradlePath += QLatin1Literal("/.gradle/caches/modules-2/files-2.1");
-    ui->addressEdit->setText( gradlePath );
+    ui->addressEdit->setText( QDir::toNativeSeparators(gradlePath) );
 
+    QString &androidPath = QString::fromLocal8Bit(qgetenv("ANDROID_HOME"));
+    if ( ! androidPath.isEmpty() ) {
+        androidPath += QLatin1String("/extras/m2repository");
+        ui->targetEdit->setText( QDir::toNativeSeparators(androidPath) );
+    }
+    // Adds Drop-down menu to the start-button
     QMenu *menu = new QMenu();
     menu->addAction("Generate Missing Jar List", this, SLOT(generateDownloadList()));
     ui->copyButton->setMenu(menu);
 
     QMutexLocker locker(&mutex);
-    if(instance == Q_NULLPTR)
+    if (instance == Q_NULLPTR) {
         instance = this;
-
-    //any log output will wait until this returns
+    }
+    // Any log output will wait until this returns
     oldMsgHandler = qInstallMsgHandler(&LogMessageOutput);
 }
 
@@ -67,14 +73,15 @@ MainWindow::~MainWindow()
 {
     QMutexLocker locker(&mutex);
     delete ui;
-    if(instance == this)
+    if (instance == this) {
         instance = 0;
+    }
 }
 
 void MainWindow::log(const QString &msg)
 {
     QMutexLocker locker(&mutex);
-    if(instance) {
+    if (instance) {
         QMetaObject::invokeMethod(instance->ui->logView, "appendPlainText"
                                   , Qt::QueuedConnection, Q_ARG(QString, msg));
     }
@@ -102,8 +109,9 @@ void MainWindow::on_selectTargetButton_clicked()
 bool MainWindow::ensureSource(QDir *source)
 {
     *source = QDir(ui->addressEdit->text());
-    if(source->exists())
+    if (source->exists()) {
         return true;
+    }
     QApplication::beep();
     ui->addressEdit->setFocus();
     ui->addressEdit->selectAll();
@@ -114,7 +122,7 @@ CopyThread *MainWindow::ensureThread(CopyThread::OperationType ot)
 {
     CopyThread *thread = 0;
     QDir source;
-    if(ot == CopyThread::GetLinkList || ensureSource(&source)) {
+    if ( ot == CopyThread::GetLinkList || ensureSource(&source) ) {
         QString target = ui->targetEdit->text();
         thread = new CopyThread();
         connect(thread, &QThread::finished, thread, &QObject::deleteLater);
@@ -128,11 +136,11 @@ CopyThread *MainWindow::ensureThread(CopyThread::OperationType ot)
 void MainWindow::startOperation(CopyThread::OperationType ot)
 {
     CopyThread *t = ensureThread(ot);
-    if(t) {
+    if (t) {
         t->setOperation(ot);
-        if(ot == CopyThread::GetLinkList)
+        if (ot == CopyThread::GetLinkList) {
             connect(t, &CopyThread::listReady, this, &MainWindow::showList);
-
+        }
         t->start();
     }
 }
