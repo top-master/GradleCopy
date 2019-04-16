@@ -48,6 +48,28 @@ allprojects {
     }
     buildDir = "${rootProject.rootDir}/.build/${project.name}"
 }
+
+subprojects {
+    buildscript {
+        repositories {
+            try { maven { url uri(offlineRepoDir) } } catch (Throwable e) {}
+        }
+    }
+    allprojects {
+        repositories {
+            try { maven { url uri(offlineRepoDir) } } catch (Throwable e) {}
+        }
+    }
+    // Force all subprojects to use the same build tools
+    afterEvaluate {project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+            }
+        }
+    }
+}
 ```
 
 **Platform:** broken `Windows` but should also work for `Mac` and `Linux`

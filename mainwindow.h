@@ -15,7 +15,7 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    typedef QMainWindow super;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
