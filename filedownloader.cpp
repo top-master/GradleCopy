@@ -25,6 +25,11 @@ void FileDownloader::fileDownloaded(QNetworkReply* pReply) {
     emit downloaded(url);
 }
 
+void FileDownloader::catchError(QNetworkReply::NetworkError v)
+{
+    emit onError(v, this->netReply);
+}
+
 QByteArray FileDownloader::downloadedData() const {
     return m_DownloadedData;
 }
@@ -33,6 +38,9 @@ void FileDownloader::wait()
 {
     if(netReply) {
         QEventLoop loop;
+        connect(netReply, static_cast<void (QNetworkReply:: *)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+                this, &FileDownloader::catchError);
+        connect(netReply, SIGNAL(error(QNetworkReply::NetworkError)), &loop, SLOT(quit()));
         connect(netReply, SIGNAL(finished()), &loop, SLOT(quit()));
         loop.exec();
     }

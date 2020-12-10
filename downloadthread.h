@@ -5,6 +5,10 @@
 #include <QStringList>
 #include <QUrl>
 
+QT_BEGIN_NAMESPACE
+class QNetworkReply;
+QT_END_NAMESPACE
+
 class DownloadThread : public QThread
 {
     Q_OBJECT
@@ -31,6 +35,7 @@ Q_SIGNALS:
 
 private slots:
     void saveData(const QUrl &url);
+    void logError(int type, QNetworkReply *);
 
 private:
     QStringList links;

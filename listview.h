@@ -31,6 +31,7 @@ private slots:
 
     void onDownloadBegin(int index, const QString &link, const QString &localPath);
     void onDownloadFinish(int index, const QString &link, const QString &localPath);
+    void onFinish();
 private:
     Ui::ListView *ui;
     QString providerLink;

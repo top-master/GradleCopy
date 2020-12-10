@@ -17,9 +17,11 @@ void DownloadThread::run()
 
         FileDownloader *fd = new FileDownloader(url);
         fd->setParent(this);
+        connect(fd, &FileDownloader::onError, this, &DownloadThread::logError);
         connect(fd, &FileDownloader::downloaded, this, &DownloadThread::saveData);
 
         fd->wait();
+        delete fd;
     }
 }
 
@@ -43,5 +45,14 @@ void DownloadThread::saveData(const QUrl &url)
             file.write(data);
             file.close();
         }
+    }
+}
+
+void DownloadThread::logError(int type, QNetworkReply *reply)
+{
+    if (reply && type == reply->error()) {
+        qDebug("Error %d: %s", type, reply->errorString());
+    } else {
+        qDebug("Unknown error: %d", type);
     }
 }
