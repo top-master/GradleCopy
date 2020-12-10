@@ -18,9 +18,11 @@ public:
     void wait();
 signals:
     void downloaded(const QUrl &url);
+    void onError(QNetworkReply::NetworkError, QNetworkReply *);
 
 private slots:
     void fileDownloaded(QNetworkReply* pReply);
+    void catchError(QNetworkReply::NetworkError);
 
 private:
     QNetworkAccessManager m_WebCtrl;

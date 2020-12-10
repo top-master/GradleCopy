@@ -18,8 +18,8 @@ ListView::ListView(QWidget *parent) :
 
     QMenu *menu = new QMenu();
     menu->addAction(QLatin1Literal("open Downloads Dir"), this, SLOT(showDownloads()));
-    menu->addAction(QLatin1Literal("disable incomplete lib (rename .pom with no .jar beside it)"), this, SLOT(disableIncompleteLibraries()));
-    menu->addAction(QLatin1Literal("restore incomplete lib (rename .pom.backup to .pom)"), this, SLOT(restoreIncompleteLibraries()));
+    menu->addAction(QLatin1Literal("Disable incomplete lib (rename .pom with no .jar beside it)"), this, SLOT(disableIncompleteLibraries()));
+    menu->addAction(QLatin1Literal("Restore incomplete lib (rename .pom.backup to .pom)"), this, SLOT(restoreIncompleteLibraries()));
     ui->downloadButton->setMenu(menu);
 
     connect(ui->copyButton, &QPushButton::clicked, this, &ListView::copyList);
@@ -118,9 +118,11 @@ void ListView::on_downloadButton_clicked()
         ui->progressBar->setVisible(true);
 
         DownloadThread *t = new DownloadThread();
+        connect(t, &QThread::finished, this, &ListView::onFinish);
         connect(t, &QThread::finished, t, &QThread::deleteLater);
         connect(t, &DownloadThread::onDownloadBegin, this, &ListView::onDownloadBegin);
         connect(t, &DownloadThread::onDownload, this, &ListView::onDownloadFinish);
+        t->moveToThread(t);
         t->prepare(list, downloadsDir, providerLink);
         t->start();
     }
@@ -134,4 +136,9 @@ void ListView::onDownloadBegin(int index, const QString &link, const QString &lo
 void ListView::onDownloadFinish(int index, const QString &link, const QString &localPath)
 {
     ui->progressBar->setValue(index);
+}
+
+void ListView::onFinish()
+{
+    ui->progressBar->setVisible(false);
 }

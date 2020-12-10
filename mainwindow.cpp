@@ -7,6 +7,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QDesktopServices>
 #include <QtGui/qmenu.h>
+#include <QtGui/QMessageBox>
 
 #include <QApplication>
 
@@ -51,8 +52,12 @@ MainWindow::MainWindow(QWidget *parent)
     gradlePath += QLatin1Literal("/.gradle/caches/modules-2/files-2.1");
     ui->addressEdit->setText( QDir::toNativeSeparators(gradlePath) );
 
-    QString &androidPath = QString::fromLocal8Bit(qgetenv("ANDROID_HOME"));
-    if ( ! androidPath.isEmpty() ) {
+    QString &androidPath = QString::fromLocal8Bit(qgetenv("ANDROID_HOME")).trimmed();
+    if ( androidPath.isEmpty() ) {
+        QMessageBox::warning(this, QLL("Missing SDK"), QLL(
+            "Your ANDROID_HOME environment-variable is not set or empty!"
+        ));
+    } else {
         androidPath += QLatin1String("/extras/m2repository");
         ui->targetEdit->setText( QDir::toNativeSeparators(androidPath) );
     }

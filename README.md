@@ -4,75 +4,60 @@ Is a `Qt` framework based tool to copy Gradle caches to Android local "m2reposit
 ![Preview](todo/preview.png?raw=true "Windows preview")
 
 ## Usage Example
-Below is an almost copy of the `react-native` framework's `build.gradle` file;
+1. First, ensure you have `ANDROID_HOME` environment-variable, pointing to your Android-SDK directory.
+2. Create the `init.gradle` file in your `%userProfile/.gradle%` directory, and open it (in your prefered text-editor).
+3. Then, simply copy below and paste in `init.gradle` file (replacing any previous content):
 
-But note the lines with "`offlineRepoDir`" in them, since that's where the magic happens:
 ```groovy
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-buildscript {
-    ext {
-        buildToolsVersion = "28.0.3"
-        minSdkVersion = 16
-        compileSdkVersion = 28
-        targetSdkVersion = 28
-        supportLibVersion = "28.0.0"
-        // Finds our custom maven2-repository path
-        offlineRepoDir = System.getenv("ANDROID_HOME")
-        offlineRepoDir = "$offlineRepoDir/extras/m2repository"
-    }
-    repositories {
-        try { maven { url uri(offlineRepoDir) } } catch (Throwable e) {}
-        google()
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+ext {
+    offlineRepoDir = "${System.getenv("ANDROID_HOME")}\\extras\\m2repository"
 }
-
-allprojects {
-    repositories {
-        try { maven { url uri(offlineRepoDir) } } catch (Throwable e) {}
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../node_modules/react-native/android"
-        }
-        mavenLocal()
-        google()
-        jcenter()
-    }
-    buildDir = "${rootProject.rootDir}/.build/${project.name}"
-}
-
-subprojects {
+rootProject {
     buildscript {
-        repositories {
-            try { maven { url uri(offlineRepoDir) } } catch (Throwable e) {}
+        ext {
+            offlineRepoDir = offlineRepoDir
         }
     }
     allprojects {
-        repositories {
-            try { maven { url uri(offlineRepoDir) } } catch (Throwable e) {}
-        }
-    }
-    // Force all subprojects to use the same build tools
-    afterEvaluate {project ->
-        if (project.hasProperty("android")) {
-            android {
-                compileSdkVersion rootProject.ext.compileSdkVersion
-                buildToolsVersion rootProject.ext.buildToolsVersion
+        buildscript {
+            repositories {
+                maven { url uri(offlineRepoDir) }
             }
+        }
+        repositories {
+            maven { url uri(offlineRepoDir) }
         }
     }
 }
-```
 
-**Platform:** broken `Windows` but should also work for `Mac` and `Linux`
+settingsEvaluated { settings ->
+    settings.pluginManagement {
+        buildscript {
+            repositories {
+                maven { url uri(offlineRepoDir) }
+            }
+        }
+        repositories {
+            maven { url uri(offlineRepoDir) }
+        }
+    }
+}
+
+```
+4. Download GradleCopy if you didn't already and launch it.
+5. Uncheck the `Test Run` option (to skip listing what will be done).
+6. At last, click the `Copy` button and done!
+7. But sometimes Gradle only downloads `.pom` files, and fails to fetch related `.jar` files:
+    - To fix that Gradle will not even try to download related `.jar` files
+      (as long as your offline repo contains related `.pom` file).
+    - First, click the "`Generate Missing Jar List`" option from the `Copy` button's dropdown menu.
+    - In the resulted window, click "`Disable incomplete lib`" option from the `Download` button's dropdown menu
+      (which renames any `.pom` file with no `.jar` file beside it, inside your offline `m2repository` directory only).
+    - Previous step can be undone by clicking "`Restore incomplete lib`" option (from the same menu).
+    - For now, the `Download` button itself is not functional
+      (which in future, downloads what is missing, instead of relaying solely on Gradle).
+
+**Platform:** broken `Windows` but should also work for `Mac` and `Linux` as well (once compiled).
 
 **Note:**
 All codes are based and meant to be `Apache 2.0` License but it does use the `Qt4` framework under the `LGPL` or `GPL` license, so if you rewrite this using another framework it is pure `Apache 2.0` License
