@@ -6,14 +6,56 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>431</width>
-    <height>392</height>
+    <width>563</width>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Result List-View</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0" colspan="3">
+    <widget class="QPlainTextEdit" name="providerStieList">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="plainText">
+      <string>https://dl.google.com/dl/android/maven2/
+https://repo1.maven.org/maven2/
+https://repo.maven.apache.org/maven2/
+</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QToolButton" name="downloadButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&amp;Download</string>
+     </property>
+     <property name="popupMode">
+      <enum>QToolButton::MenuButtonPopup</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QListView" name="listView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="2">
     <widget class="QPushButton" name="copyButton">
      <property name="text">
@@ -34,51 +76,61 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="0" colspan="3">
-    <widget class="QListView" name="listView"/>
-   </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QGroupBox" name="groupBox">
+   <item row="3" column="0" colspan="3">
+    <widget class="QGroupBox" name="progressGroup">
      <property name="title">
       <string>Download State</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="statusLabel">
-        <property name="text">
-         <string>Download:</string>
-        </property>
-       </widget>
+      <item row="1" column="0" colspan="4">
+       <widget class="QProgressBar" name="progressBar"/>
       </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="statusView">
+       <widget class="QLabel" name="statusLeftView">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string>#0</string>
+        </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QProgressBar" name="progressBar"/>
+      <item row="0" column="0">
+       <widget class="QLabel" name="statusLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Downloading:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLineEdit" name="statusView">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QToolButton" name="downloadButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="4" column="0" colspan="3">
+    <widget class="QLabel" name="usageInfo">
      <property name="text">
-      <string>&amp;Download</string>
+      <string/>
      </property>
-     <property name="popupMode">
-      <enum>QToolButton::MenuButtonPopup</enum>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
      </property>
     </widget>
    </item>

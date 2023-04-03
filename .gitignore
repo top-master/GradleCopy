@@ -1,10 +1,6 @@
 # Ignore personal files
 #
 todo/
-bin/*.rar
-src/network4/
-
-git_*.cmd
 
 
 # generated
@@ -132,23 +128,4 @@ buck-out/
 
 # Bundle artifact
 *.jsbundle
-
-# ---------------------------- below are not standard ----------------------------
-
-# Folders
-_obj
-_test
-
-# Architecture specific extensions/prefixes
-*.cgo1.go
-*.cgo2.c
-_cgo_defun.c
-_cgo_gotypes.go
-_cgo_export.*
-_testmain.go
-
-
-*.test
-*.prof
-*_buildinfo.txt
 

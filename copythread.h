@@ -8,7 +8,10 @@
 class CopyThread : public QThread {
     Q_OBJECT
 public:
-    inline CopyThread() : operation(Nothing), dryRun(false) {}
+    inline CopyThread()
+        : dryRun(false)
+        , operation(Nothing)
+    {}
     ~CopyThread() Q_DEL_OVERRIDE;
 
     enum OperationType {
@@ -23,27 +26,25 @@ public:
         emit statusChanged("preparing");
 
         source = source_;
-        target = target_;
+        m_target = target_;
         dryRun = dryRun_;
     }
 
     inline void setOperation(OperationType ot) { operation = ot; }
 
-    inline static QLatin1Literal getPomBackupExtension() { return QLatin1Literal(".pom.backup"); }
+    inline QString target() const { return m_target; }
 
 signals:
     void domainChanged(const QString &status);
     void statusChanged(const QString &status);
-    void listReady(const QString &providerLink, const QStringList &links, const QStringList &localFiles);
+    void listReady(const QStringList &links, const QStringList &localFiles);
 
 protected:
     void run() Q_DECL_OVERRIDE;
 
 private:
-    QString baseFromPom(const QString &pomPath) const;
-private:
     QDir source;
-    QString target;
+    QString m_target;
     bool dryRun;
     OperationType operation;
 };

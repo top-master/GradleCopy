@@ -1,19 +1,22 @@
 #include "copythread.h"
+#include "project-info.h"
 
 #include <QDebug>
 
 
 CopyThread::~CopyThread()
 {
-    qWarning() << "CopyThread deleted";
+    qDebug("%s operation completed.", this->operation == CopyLibraries
+            ? "Copy"
+            : "Scan");
 }
 
 void CopyThread::run() {
     emit statusChanged("running");
 
     //prepare arguments
-    if(!target.endsWith(QLatin1Char('/')))
-        target.append(QLatin1Char('/'));
+    if(!m_target.endsWith(QLatin1Char('/')))
+        m_target.append(QLatin1Char('/'));
     source.setFilter(source.filter() | QDir::NoDotAndDotDot);
 
     if(operation == CopyLibraries) {
@@ -23,7 +26,7 @@ void CopyThread::run() {
             domainDir.setFilter(domainDir.filter() | QDir::NoDotAndDotDot);
 
             const QString domainName = domainDir.dirName().replace(QLatin1Char('.'), QLatin1Char('/'));
-            const QString domainPath = target
+            const QString domainPath = m_target
                     + domainName + QLatin1Char('/');
 
             emit domainChanged(domainName);
@@ -56,13 +59,17 @@ void CopyThread::run() {
                             QFileInfo fileInfo(sourcePath);
                             const QString targetPath = versionPath + fileInfo.fileName();
 
+                            // Don't even log binary-same gradle-caches
+                            // (God knows why Gradle did re-download them).
+                            QFileInfo target(targetPath);
+                            if (target.exists()
+                                && ProjectInfo::binarySame(targetPath, sourcePath)
+                            ) {
+                                continue;
+                            }
+
                             if(!dryRun) {
-                                QFileInfo target(targetPath);
-//                                if(!target.exists()) {
-                                    QFile::copy(sourcePath, targetPath);
-//                                } else {
-//                                    qWarning() << "file already exists:" << targetPath;
-//                                }
+                                QFile::copy(sourcePath, targetPath);
                             } else
                                 qDebug() << "copy:" << sourcePath << "to:" << targetPath;
                         }
@@ -74,38 +81,65 @@ void CopyThread::run() {
     } else if(operation == GetLinkList) {
         QStringList remoteLinks;
         QStringList localFiles;
-        QLatin1Literal providerSite("https://repo1.maven.org/maven2/");
+
+        QStringList filters;
+        filters.reserve(2);
+        filters << "*.pom";
+        filters << "*.pom.backup";
 
         //search for any library that is not ready for download
-        QDirIterator it(target, QStringList() << "*.pom" << "*.pom.backup", QDir::Files, QDirIterator::Subdirectories);
+        QDirIterator it(m_target, filters, QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             const QString pomPath = it.next();
-            const QString basePath = baseFromPom(pomPath);
-            const QString jarPath = basePath + QLatin1Literal(".jar");
-            QFileInfo jarInfo(jarPath);
-            const QString aarPath = basePath + QLatin1Literal(".aar");
-            QFileInfo aarInfo(aarPath);
-            if(jarInfo.exists() == false && aarInfo.exists() == false) {
+
+            // Parse POM.
+            ProjectInfo info(pomPath);
+
+            // Excludes pom-only packages.
+            if (info.parse()) {
+                // Undo old GradleCopy version's mistakes.
+                if (info.isBackup() && info.isDownloaded()) {
+                    info.setVerbose(false);
+                    info.restoreIncomplete();
+                    info.setVerbose(true);
+                    // Rename may fail, else could do:
+                    // ```
+                    // continue;
+                    // ```
+                }
+
+                if (info.isParent()) {
+                    // TODO: include dependencies of pom-only packages
+                    // (into `remoteLinks`, if they don't exist locally).
+                    continue;
+                }
+            }
+
+            if ( ! info.isComplete()) {
+                const QString &path = info.isJar() ? info.jarPath() : info.aarPath();
+
+                // Skip duplicates.
+#ifdef Q_OS_WIN
+                const Qt::CaseSensitivity fileCasing = Qt::CaseInsensitive;
+#else
+                const Qt::CaseSensitivity fileCasing = Qt::CaseSensitive;
+#endif
+                if (localFiles.contains(path, fileCasing)) {
+                    continue;
+                }
+
+
                 QString link;
 
-                link.reserve(providerSite.size() + (jarPath.length() - target.length()));
-                link += providerSite;
-                link += jarPath.right(jarPath.length() - target.length());
+                link.reserve(path.length() - m_target.length());
+                link += path.right(path.length() - m_target.length());
 
-                localFiles += jarPath;
+                localFiles += path;
                 remoteLinks += link;
             }
         }
-        emit listReady(providerSite, remoteLinks, localFiles);
+        emit listReady(remoteLinks, localFiles);
     }
 
     emit statusChanged("finished");
-}
-
-QString CopyThread::baseFromPom(const QString &pomPath) const
-{
-    const QLatin1Literal pomBackupExt = getPomBackupExtension();
-    if(pomPath.endsWith(pomBackupExt))
-        return pomPath.left(pomPath.size() - pomBackupExt.size());
-    return pomPath.left(pomPath.size() - 4);
 }
