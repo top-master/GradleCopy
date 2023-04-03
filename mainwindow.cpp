@@ -48,11 +48,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QString &gradlePath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
+    QString gradlePath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
     gradlePath += QLatin1Literal("/.gradle/caches/modules-2/files-2.1");
     ui->addressEdit->setText( QDir::toNativeSeparators(gradlePath) );
 
-    QString &androidPath = QString::fromLocal8Bit(qgetenv("ANDROID_HOME")).trimmed();
+    QString androidPath = QString::fromLocal8Bit(qgetenv("ANDROID_HOME")).trimmed();
     if ( androidPath.isEmpty() ) {
         QMessageBox::warning(this, QLL("Missing SDK"), QLL(
             "Your ANDROID_HOME environment-variable is not set or empty!"
@@ -92,10 +92,14 @@ void MainWindow::log(const QString &msg)
     }
 }
 
-void MainWindow::showList(const QString &providerLink, const QStringList &remoteLinks, const QStringList &localFiles)
+void MainWindow::showList(const QStringList &remoteLinks, const QStringList &localFiles)
 {
     ListView *lv = new ListView();
-    lv->setList(providerLink, remoteLinks, localFiles);
+    lv->setList(remoteLinks, localFiles);
+    CopyThread *thread = qobject_cast<CopyThread *>(sender());
+    if (thread) {
+        lv->setMavenFolder(thread->target());
+    }
     lv->showNormal();
 }
 

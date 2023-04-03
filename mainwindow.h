@@ -23,7 +23,7 @@ public:
     static void log(const QString &);
 public slots:
     inline void generateDownloadList() { startOperation(CopyThread::GetLinkList); }
-    void showList(const QString &providerLink, const QStringList &remoteLinks, const QStringList &localFiles);
+    void showList(const QStringList &remoteLinks, const QStringList &localFiles);
 private slots:
     void on_browseButton_clicked();
 
