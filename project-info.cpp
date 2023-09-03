@@ -49,6 +49,8 @@ bool ProjectInfo::parse()
         this->m_type = Self::Jar;
     } else if (typeName == QLL("aar")) {
         this->m_type = Self::Aar;
+    } else if (typeName == QLL("apk")) {
+        this->m_type = Self::Apk;
     } else {
         this->m_type = Self::UnknownType;
     }
@@ -73,6 +75,13 @@ bool ProjectInfo::isDownloaded() const
         QFileInfo aarInfo(this->aarPath());
         QFileInfo aarInfoForPlatform(this->aarPathForPlatform());
         if (aarInfo.exists() || aarInfoForPlatform.exists()) {
+            return true;
+        }
+    }
+    if (this->isApk()) {
+        QFileInfo apkInfo(this->apkPath());
+        QFileInfo apkInfoForPlatform(this->apkPathForPlatform());
+        if (apkInfo.exists() || apkInfoForPlatform.exists()) {
             return true;
         }
     }
