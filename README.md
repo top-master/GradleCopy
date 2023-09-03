@@ -9,39 +9,34 @@
 3. Then, simply copy below and paste in `init.gradle` file (replacing any previous content):
 
 ```groovy
-ext {
-    offlineRepoDir = "${System.getenv("ANDROID_HOME")}\\extras\\m2repository"
+def offlineRepoDir = "${System.getenv("ANDROID_HOME")}\\extras\\m2repository"
+def repositoryClosure = {
+    maven { url uri(offlineRepoDir) }
+    // google()
+    // mavenCentral()
 }
+
 rootProject {
     buildscript {
-        ext {
-            offlineRepoDir = offlineRepoDir
-        }
+        ext.machineOfflineRepoDir = offlineRepoDir
     }
     allprojects {
         buildscript {
-            repositories {
-                maven { url uri(offlineRepoDir) }
-            }
+            repositories(repositoryClosure)
         }
-        repositories {
-            maven { url uri(offlineRepoDir) }
-        }
+        repositories(repositoryClosure)
     }
 }
 
 settingsEvaluated { settings ->
     settings.pluginManagement {
         buildscript {
-            repositories {
-                maven { url uri(offlineRepoDir) }
-            }
+            repositories(repositoryClosure)
         }
-        repositories {
-            maven { url uri(offlineRepoDir) }
-        }
+        repositories(repositoryClosure)
     }
 }
+
 
 ```
 4. Download `GradleCopy` if you didn't already, and launch it.
