@@ -8,7 +8,7 @@ CopyThread::~CopyThread()
 {
     qDebug("%s operation completed.", this->operation == CopyLibraries
             ? "Copy"
-            : "Scan");
+            : "Scan-for-missing");
 }
 
 void CopyThread::run() {
@@ -116,7 +116,7 @@ void CopyThread::run() {
             }
 
             if ( ! info.isComplete()) {
-                const QString &path = info.isJar() ? info.jarPath() : info.aarPath();
+                const QString &path = info.packagePath();
 
                 // Skip duplicates.
 #ifdef Q_OS_WIN

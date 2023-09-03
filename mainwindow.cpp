@@ -103,6 +103,14 @@ void MainWindow::showList(const QStringList &remoteLinks, const QStringList &loc
     lv->showNormal();
 }
 
+void MainWindow::showListIfAny(const QStringList &remoteLinks, const QStringList &localFiles)
+{
+    if (remoteLinks.isEmpty() && localFiles.isEmpty()) {
+        return;
+    }
+    showList(remoteLinks, localFiles);
+}
+
 void MainWindow::on_browseButton_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(this);
@@ -113,6 +121,11 @@ void MainWindow::on_selectTargetButton_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(this);
     ui->targetEdit->setText(path);
+}
+
+void MainWindow::postCopyOperation()
+{
+    startOperation(CopyThread::GetLinkList, true);
 }
 
 bool MainWindow::ensureSource(QDir *source)
@@ -142,13 +155,22 @@ CopyThread *MainWindow::ensureThread(CopyThread::OperationType ot)
     return thread;
 }
 
-void MainWindow::startOperation(CopyThread::OperationType ot)
+void MainWindow::startOperation(CopyThread::OperationType ot, bool silent)
 {
     CopyThread *t = ensureThread(ot);
     if (t) {
         t->setOperation(ot);
         if (ot == CopyThread::GetLinkList) {
-            connect(t, &CopyThread::listReady, this, &MainWindow::showList);
+            if ( ! silent) {
+                connect(t, &CopyThread::listReady, this, &MainWindow::showList);
+            } else {
+                connect(t, &CopyThread::listReady, this, &MainWindow::showListIfAny);
+            }
+
+        } else if (ot == CopyThread::CopyLibraries
+                && ! ui->testRun->isChecked()
+        ) {
+            connect(t, &CopyThread::finished, this, &MainWindow::postCopyOperation);
         }
         t->start();
     }

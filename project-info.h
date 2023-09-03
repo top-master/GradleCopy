@@ -30,7 +30,8 @@ public:
         UnknownType,
         PomOnly,
         Jar,
-        Aar
+        Aar,
+        Apk
     };
     inline Type type() const { return m_type; }
 
@@ -42,6 +43,7 @@ public:
     inline bool isParent() const { return m_type == Self::PomOnly; }
     inline bool isJar() const { return m_type == Self::Jar; }
     inline bool isAar() const { return m_type == Self::Aar; }
+    inline bool isApk() const { return m_type == Self::Apk; }
     inline bool isUnknown() const { return m_type == Self::UnknownType; }
 
     /**
@@ -77,6 +79,19 @@ public:
     QString pomBackupPath() const { return basePath() + Self::getPomBackupExtension(); }
     QString jarPath() const { return basePath() + QLatin1Literal(".jar"); }
     QString aarPath() const { return basePath() + QLatin1Literal(".aar"); }
+    QString apkPath() const { return basePath() + QLatin1Literal(".apk"); }
+
+    /**
+     * The POM may package a `.jar` or `.aar` or `.apk` file
+     */
+    QString packagePath() const {
+        if (isJar()) {
+            return jarPath();
+        } else if (isApk()) {
+            return apkPath();
+        }
+        return aarPath();
+    }
 
     /**
      * Platform-specific packages exist, which may be required by Android-Studio only.
@@ -92,6 +107,13 @@ public:
      */
     QString aarPathForPlatform() const {
         return basePath() + Self::platformSuffix(QLL("aar"));
+    }
+
+    /**
+     * Same as {@link #jarPathForPlatform}, but for APK.
+     */
+    QString apkPathForPlatform() const {
+        return basePath() + Self::platformSuffix(QLL("apk"));
     }
 
     const QString &basePath() const { return m_basePath; }
