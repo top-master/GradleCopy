@@ -4,10 +4,10 @@
 #include "copythread.h"
 #include "listview.h"
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QDesktopServices>
-#include <QtGui/qmenu.h>
-#include <QtGui/QMessageBox>
+#include <QtCore/QStandardPaths>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/qmenu.h>
+#include <QtWidgets/QMessageBox>
 
 #include <QApplication>
 
@@ -20,16 +20,16 @@ void LogMessageOutput(QtMsgType type, const char *msg)
         result = msg;
         break;
 //    case QtInfoMsg:
-//        result = QString::fromPrintf("Info: %s", msg);
+//        result = QString::asprintf("Info: %s", msg);
 //        break;
     case QtWarningMsg:
-        result = QString::fromPrintf("Warning: %s", msg);
+        result = QString::asprintf("Warning: %s", msg);
         break;
     case QtCriticalMsg:
-        result = QString::fromPrintf("Critical: %s", msg);
+        result = QString::asprintf("Critical: %s", msg);
         break;
     case QtFatalMsg:
-        result = QString::fromPrintf("Fatal: %s", msg);
+        result = QString::asprintf("Fatal: %s", msg);
         break;
     }
 
@@ -48,7 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QString gradlePath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
+    QStringList userHome = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QString gradlePath = ! userHome.isEmpty() ? userHome.first() : QString(QLL("~"));
     gradlePath += QLatin1Literal("/.gradle/caches/modules-2/files-2.1");
     ui->addressEdit->setText( QDir::toNativeSeparators(gradlePath) );
 

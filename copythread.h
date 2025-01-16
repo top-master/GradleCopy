@@ -12,7 +12,7 @@ public:
         : dryRun(false)
         , operation(Nothing)
     {}
-    ~CopyThread() Q_DEL_OVERRIDE;
+    ~CopyThread();
 
     enum OperationType {
         Nothing,

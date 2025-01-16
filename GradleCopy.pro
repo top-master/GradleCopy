@@ -10,6 +10,7 @@ CONFIG(release, debug|release) {
     #CONFIG += static_runtime
     CONFIG += force_debug_info
 }
+CONFIG -= debug_and_release
 
 win32 {
     RC_FILE = $$PWD/assets/main.rc
@@ -18,7 +19,7 @@ win32 {
 
 isXD {
     copyOpenSSL()
-    CONFIG(debug, debug|release): !qt_static: copyModules()
+    CONFIG(debug, debug|release): !qt_static: copyModuleList()
 }
 
 SOURCES += \

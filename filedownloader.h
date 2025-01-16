@@ -12,7 +12,7 @@ class FileDownloader : public QObject {
     Q_OBJECT
 public:
     explicit FileDownloader(QUrl url, QObject *parent = 0);
-    virtual ~FileDownloader() Q_DEL_OVERRIDE;
+    virtual ~FileDownloader();
     QByteArray downloadedData() const;
 
     void wait();
