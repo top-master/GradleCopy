@@ -51,6 +51,8 @@ bool ProjectInfo::parse()
         this->m_type = Self::Aar;
     } else if (typeName == QLL("apk")) {
         this->m_type = Self::Apk;
+    } else if (typeName == QLL("bundle")) {
+        this->m_type = Self::Bundle;
     } else {
         this->m_type = Self::UnknownType;
     }

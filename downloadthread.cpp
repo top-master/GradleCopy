@@ -40,7 +40,7 @@ QString DownloadThread::findLocalFolder(const QUrl &url) const
 QString DownloadThread::findLocalFolder(const QString &localPath) const
 {
     int pos = localPath.lastIndexOf(QLatin1Char('/'));
-    return localPath.leftRef(pos);
+    return localPath.left(pos);
 }
 
 void DownloadThread::run()

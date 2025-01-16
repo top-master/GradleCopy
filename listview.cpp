@@ -24,7 +24,7 @@ ListView::ListView(QWidget *parent)
     ui->usageInfo->setVisible(false);
     ui->usageInfo->setText(QApplication::translate("ListView",
         "<b>Next steps:</b> Move <a href=\"link\">downloads folder</a>'s content to your <a href=\"target\">m2repository folder</a>"
-        " (and replace existing).\n", 0, QApplication::UnicodeUTF8));
+        " (and replace existing).\n", 0));
 
 #ifndef Q_OS_WIN
     // MacOS is complicated.

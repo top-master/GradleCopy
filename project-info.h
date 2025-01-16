@@ -31,7 +31,10 @@ public:
         PomOnly,
         Jar,
         Aar,
-        Apk
+        Apk,
+        /// Same as Jar, but may provide `-sources.jar` or `-javadoc.jar`
+        /// suffixed files as well (beside the `.jar` file).
+        Bundle
     };
     inline Type type() const { return m_type; }
 
@@ -41,9 +44,10 @@ public:
      * @see parse()
      */
     inline bool isParent() const { return m_type == Self::PomOnly; }
-    inline bool isJar() const { return m_type == Self::Jar; }
+    inline bool isJar() const { return m_type == Self::Jar || m_type == Self::Bundle; }
     inline bool isAar() const { return m_type == Self::Aar; }
     inline bool isApk() const { return m_type == Self::Apk; }
+    inline bool isBundle() const { return m_type == Self::Bundle; }
     inline bool isUnknown() const { return m_type == Self::UnknownType; }
 
     /**
