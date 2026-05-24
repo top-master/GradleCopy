@@ -23,7 +23,7 @@ isXD {
 }
 
 SOURCES += \
-    main.cpp\
+    $$PWD/main.cpp \
     mainwindow.cpp \
     copythread.cpp \
     listview.cpp \
