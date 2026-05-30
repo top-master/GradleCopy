@@ -18,8 +18,21 @@ win32 {
 }
 
 isXD {
-    copyOpenSSL()
-    CONFIG(debug, debug|release): !qt_static: copyModuleList()
+    # On macOS, XD's bare-name dylibs must sit next to the binary inside the .app bundle.
+    mac:   tmp_dest = $$shadowed($$DESTDIR)/$${TARGET}.app/Contents/MacOS
+    else:  tmp_dest = $$shadowed($$DESTDIR)
+    copyOpenSSL($$tmp_dest)
+    CONFIG(debug, debug|release): !qt_static: copyModuleList($$tmp_dest)
+
+    # Stage Qt's per-OS platform plugin under `<binary-dir>/platforms/` (skipped for static builds).
+    !qt_static {
+        mac {
+            copyPlatformDriver(cocoa, $$tmp_dest/platforms)
+            CONFIG(debug, debug|release): copyModule(PrintSupport, $$tmp_dest)  # cocoa's runtime dep
+        }
+        win32:  copyPlatformDriver(windows, $$tmp_dest/platforms)
+        unix:!mac: copyPlatformDriver(xcb,  $$tmp_dest/platforms)
+    }
 }
 
 SOURCES += \
