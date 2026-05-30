@@ -67,6 +67,9 @@ todo/
 # Windows clutter
 Thumbs.db
 
+# AI-agent clutter
+.claude/
+
 # Xcode
 #
 build/
