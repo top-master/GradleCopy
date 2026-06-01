@@ -32,7 +32,7 @@ public:
 
         emit statusChanged("preparing");
 
-        m = Data();
+        m = qMove(Data());
         links = links_;
         m_linkCount = links_.size();
         target = target_;
@@ -87,7 +87,19 @@ private:
             , providerIndex(0)
             , task(Q_NULLPTR)
         {
-            notFoundCount = 0;
+            notFoundCount.store(0);
+        }
+
+        /// Hand-rolled because `QBasicAtomicInt`'s copy-assignment is
+        /// deleted under modern C++.
+        inline Data &operator=(const Data &other) {
+            if (this != &other) {
+                isAborted = other.isAborted;
+                providerIndex = other.providerIndex;
+                notFoundCount.store(other.notFoundCount.load());
+                task = other.task;
+            }
+            return *this;
         }
 
         volatile bool isAborted;

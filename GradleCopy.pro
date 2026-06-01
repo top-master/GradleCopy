@@ -17,13 +17,37 @@ win32 {
     DESTDIR = GradleCopy-win-x86
 }
 
-isXD {
-    copyOpenSSL()
-    CONFIG(debug, debug|release): !qt_static: copyModuleList()
+# macOS Finder icon -- regenerated from `assets/main.ico` by `gen-icns.sh`.
+mac {
+    ICON = $$PWD/assets/main.icns
+    icns_gen.target   = $$PWD/assets/main.icns
+    icns_gen.depends  = $$PWD/assets/main.ico $$PWD/assets/gen-icns.sh
+    icns_gen.commands = sh $$PWD/assets/gen-icns.sh $$PWD/assets/main.ico $$PWD/assets/main.icns
+    QMAKE_EXTRA_TARGETS += icns_gen
+    PRE_TARGETDEPS      += $$PWD/assets/main.icns
+}
+
+# Absolute path to the dir the built executable lives in.
+mac:   exeDir = $$shadowed($$DESTDIR)/$${TARGET}.app/Contents/MacOS
+else:  exeDir = $$shadowed($$DESTDIR)
+
+# MARK: Copy Redist.
+
+# OpenSSL is dynamically linked even under qt_static.
+isXD: copyOpenSSL($$exeDir)
+
+isXD : !qt_static {
+    CONFIG(debug, debug|release): copyModuleList($$exeDir)
+    mac {
+        copyPlatformDriver(cocoa, $$exeDir/platforms)
+        CONFIG(debug, debug|release): copyModule(PrintSupport, $$exeDir)
+    }
+    win32:  copyPlatformDriver(windows, $$exeDir/platforms)
+    unix:!mac: copyPlatformDriver(xcb,  $$exeDir/platforms)
 }
 
 SOURCES += \
-    main.cpp\
+    $$PWD/main.cpp \
     mainwindow.cpp \
     copythread.cpp \
     listview.cpp \

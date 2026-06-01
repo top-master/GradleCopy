@@ -37,7 +37,7 @@ ListView::ListView(QWidget *parent)
         "<li>Then at the same time, drag-and-drop said content into m2repository folder,</li>\n"
         "<li>Above should result to seeing <b>Merge</b> button in the Copy dialog, therein simply click <b>Merge</b> button.</li>\n"
         "<li>All done! but click <b>Replace All</b> if a separate dialog asks again.</li>\n"
-        "</ul>", 0, QApplication::UnicodeUTF8);
+        "</ul>", 0));
 #endif
 
     // Sub-menu for download button.
